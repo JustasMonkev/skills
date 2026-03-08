@@ -1,0 +1,154 @@
+---
+name: "appium-android-environment-setup"
+description: "Prepare and validate Android SDK, Java, and device tooling for Appium Android drivers"
+metadata:
+  model: "GPT-5.3-Codex"
+  last_modified: "Sun, 08 Mar 2026 00:00:00 GMT"
+
+---
+# appium-android-environment-setup
+
+## Goal
+Prepares a working Android automation environment for Appium by validating Java, Android SDK command-line tools, required SDK packages, environment variables, and ADB device visibility, with a verify-and-fix loop until all mandatory checks pass.
+
+## Decision Logic
+- If host OS is unsupported for Android SDK setup: stop and ask the user to switch to macOS, Linux, or Windows.
+- If host OS is macOS: use Homebrew + `$HOME/Library/Android/sdk` conventions.
+- If host OS is Linux: use package manager + `$HOME/Android/Sdk` conventions.
+- If host OS is Windows: use Android SDK tools with persistent user environment variables.
+- If `java` or `javac` is missing: install a supported JDK and configure `JAVA_HOME`.
+- If `sdkmanager` is missing: continue if Android SDK is already provisioned and `adb` + emulator binary checks pass.
+- If `adb` is missing: install `platform-tools` via `sdkmanager`.
+- If emulator binary is missing under `ANDROID_HOME/emulator/emulator` (or Windows equivalent): install emulator packages.
+- If required SDK packages are missing: install them and re-run checks.
+
+## Instructions
+1. **Detect OS and validate Java/base tooling**
+   macOS/Linux:
+   ```bash
+   uname -s
+   java -version
+   javac -version
+   echo "$JAVA_HOME"
+   command -v adb
+   ls "$ANDROID_HOME/emulator/emulator"
+   test -x "$ANDROID_HOME/emulator/emulator" && echo "emulator binary: OK"
+   ```
+   Windows PowerShell:
+   ```powershell
+   [System.Environment]::OSVersion.VersionString
+   java -version
+   javac -version
+   $env:JAVA_HOME
+   Get-Command adb.exe -ErrorAction SilentlyContinue
+   Test-Path "$env:ANDROID_HOME\emulator\emulator.exe"
+   ```
+
+2. **Install Android command-line tools when `sdkmanager` is missing**
+   macOS/Homebrew example:
+   ```bash
+   brew install --cask android-commandlinetools
+   mkdir -p "$HOME/Library/Android/sdk/cmdline-tools/latest"
+   cp -R /opt/homebrew/share/android-commandlinetools/* "$HOME/Library/Android/sdk/cmdline-tools/latest/"
+   ```
+   Linux example (Debian/Ubuntu-style prerequisites + cmdline tools placement):
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y unzip wget openjdk-17-jdk
+   mkdir -p "$HOME/Android/Sdk/cmdline-tools/latest"
+   ```
+   Windows example (PowerShell, after extracting Android command-line tools zip):
+   ```powershell
+   New-Item -ItemType Directory -Force "$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest"
+   ```
+
+3. **Configure Android environment variables and PATH**
+   macOS:
+   ```bash
+   export ANDROID_HOME="$HOME/Library/Android/sdk"
+   export ANDROID_SDK_ROOT="$ANDROID_HOME"
+   export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+   echo "$ANDROID_HOME"
+   echo "$ANDROID_SDK_ROOT"
+   command -v adb
+   ls "$ANDROID_HOME/emulator/emulator"
+   ```
+   Linux:
+   ```bash
+   export ANDROID_HOME="$HOME/Android/Sdk"
+   export ANDROID_SDK_ROOT="$ANDROID_HOME"
+   export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+   echo "$ANDROID_HOME"
+   echo "$ANDROID_SDK_ROOT"
+   command -v adb
+   ls "$ANDROID_HOME/emulator/emulator"
+   ```
+   Windows PowerShell (persist for current user):
+   ```powershell
+   [Environment]::SetEnvironmentVariable('ANDROID_HOME', "$env:LOCALAPPDATA\Android\Sdk", 'User')
+   [Environment]::SetEnvironmentVariable('ANDROID_SDK_ROOT', "$env:LOCALAPPDATA\Android\Sdk", 'User')
+   $androidPaths = "$env:LOCALAPPDATA\Android\Sdk\platform-tools;$env:LOCALAPPDATA\Android\Sdk\cmdline-tools\latest\bin"
+   $currentPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+   if ($currentPath -notlike "*$androidPaths*") {
+     [Environment]::SetEnvironmentVariable('Path', "$currentPath;$androidPaths", 'User')
+   }
+   $env:ANDROID_HOME = [Environment]::GetEnvironmentVariable('ANDROID_HOME', 'User')
+   $env:ANDROID_SDK_ROOT = [Environment]::GetEnvironmentVariable('ANDROID_SDK_ROOT', 'User')
+   ```
+
+4. **Accept SDK licenses and install required packages**
+   macOS/Linux:
+   ```bash
+   if command -v sdkmanager >/dev/null 2>&1; then yes | sdkmanager --licenses; fi
+   if command -v sdkmanager >/dev/null 2>&1; then sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "emulator"; fi
+   ```
+   Windows PowerShell:
+   ```powershell
+   if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { cmd /c "echo y| sdkmanager.bat --licenses" }
+   if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { sdkmanager.bat "platform-tools" "build-tools;34.0.0" "platforms;android-34" "emulator" }
+   ```
+
+5. **Verify Android SDK and ADB state**
+   macOS/Linux:
+   ```bash
+   if command -v sdkmanager >/dev/null 2>&1; then sdkmanager --list | head -n 80; fi
+   adb version
+   ls "$ANDROID_HOME/emulator/emulator"
+   test -x "$ANDROID_HOME/emulator/emulator" && echo "emulator binary: OK"
+   ```
+   Windows PowerShell:
+   ```powershell
+   if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { sdkmanager.bat --list }
+   adb.exe version
+   Test-Path "$env:ANDROID_HOME\emulator\emulator.exe"
+   ```
+
+6. **Optional emulator checks (if no physical device is connected)**
+   macOS/Linux:
+   ```bash
+   command -v emulator
+   emulator -list-avds
+   ```
+   Windows PowerShell:
+   ```powershell
+   Get-Command emulator.exe -ErrorAction SilentlyContinue
+   emulator.exe -list-avds
+   ```
+
+7. **Completion criteria**
+   Mark complete only when all are true:
+   - `java -version` and `javac -version` succeed
+   - `adb` is executable from `PATH`
+   - Emulator binary exists under `ANDROID_HOME/emulator/emulator` (or `%ANDROID_HOME%\emulator\emulator.exe` on Windows)
+   - Required SDK packages are installed (`platform-tools`, one platform, one build-tools version)
+   - Android environment checks pass without requiring a connected device
+
+## Constraints
+- Always use detect-first behavior and install only missing components.
+- Re-run validation commands after each install/config change.
+- Do not report success if `adb` is unavailable or emulator binary check fails.
+- Treat optional dependencies and optional doctor warnings as non-blocking unless the user requests those features.
+- Ask the user before installing optional dependencies; do not install them by default.
+- If privileged commands are needed, pause and provide exact commands for user execution.
+- Keep Android setup independent from Appium driver installation steps.
+- Use shell-appropriate commands (`bash` for macOS/Linux, PowerShell/cmd for Windows).
