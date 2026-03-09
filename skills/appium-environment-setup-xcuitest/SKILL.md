@@ -28,8 +28,6 @@ Prepares a stable Appium XCUITest execution environment on macOS by validating N
    sw_vers
    node -v
    npm -v
-   npm config get prefix
-   npm config get cache
    npm ping
    npm doctor
    xcodebuild -version

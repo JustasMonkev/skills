@@ -34,8 +34,6 @@ Prepares a stable Node.js and npm environment for Appium by validating the activ
    ```bash
    node -v
    npm -v
-   npm config get prefix
-   npm config get cache
    ```
 
 3. **Validate npm health (advisory)**

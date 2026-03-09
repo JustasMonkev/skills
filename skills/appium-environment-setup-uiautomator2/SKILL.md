@@ -28,8 +28,6 @@ Prepares a reliable Appium UiAutomator2 execution environment by installing Node
    ```bash
    node -v
    npm -v
-   npm config get prefix
-   npm config get cache
    npm ping
    npm doctor
    ```
@@ -37,8 +35,6 @@ Prepares a reliable Appium UiAutomator2 execution environment by installing Node
    ```powershell
    node -v
    npm -v
-   npm config get prefix
-   npm config get cache
    npm ping
    npm doctor
    ```
