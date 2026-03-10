@@ -1,8 +1,8 @@
 ---
-name: "appium-environment-setup-xcuitest"
+name: "environment-setup-xcuitest"
 description: "Set up and validate an XCUITest Appium environment on macOS"
 metadata:
-  last_modified: "Sun, 08 Mar 2026 07:30:00 GMT"
+  last_modified: "Mon, 09 Mar 2026 12:10:00 GMT"
 
 ---
 # appium-xcuitest-environment-setup

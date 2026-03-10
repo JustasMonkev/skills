@@ -9,9 +9,9 @@ NOTE: This repository is currently in development.
 | Skill | Description |
 |---|---|
 | [node-environment-setup](skills/node-environment-setup/SKILL.md) | Prepares Node.js and npm environment |
-| [appium-android-environment-setup](skills/appium-android-environment-setup/SKILL.md) | Prepares Android SDK, Java, and ADB prerequisites for Appium Android drivers |
-| [appium-environment-setup-uiautomator2](skills/appium-environment-setup-uiautomator2/SKILL.md) | Prepares and validates an Android + UiAutomator2 Appium environment |
-| [appium-environment-setup-xcuitest](skills/appium-environment-setup-xcuitest/SKILL.md) | Prepares and validates a macOS + XCUITest Appium environment |
+| [android-environment-setup](skills/android-environment-setup/SKILL.md) | Prepares Android SDK, Java, and ADB prerequisites for Appium Android drivers |
+| [environment-setup-uiautomator2](skills/environment-setup-uiautomator2/SKILL.md) | Prepares and validates an Android + UiAutomator2 Appium environment |
+| [environment-setup-xcuitest](skills/environment-setup-xcuitest/SKILL.md) | Prepares and validates a macOS + XCUITest Appium environment |
 
 ## Reliable Execution Notes
 
