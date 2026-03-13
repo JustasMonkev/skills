@@ -2,7 +2,7 @@
 name: "environment-setup-android"
 description: "Prepare and validate Android SDK, Java, and device tooling for Appium Android drivers"
 metadata:
-  last_modified: "Thu, 12 Mar 2026 00:00:00 GMT"
+  last_modified: "Thu, 12 Mar 2026 03:25:00 GMT"
 
 ---
 # environment-setup-android
@@ -15,7 +15,7 @@ Prepares a working Android automation environment for Appium by validating Java,
 - If `java -version` and `javac -version` already succeed: keep the existing Java setup and do not reconfigure `JAVA_HOME`.
 - If host OS is macOS and Java setup is needed (fresh environment): use Android Studio app setup (`/Applications/Android Studio.app`) as the primary method for both `ANDROID_HOME` (`$HOME/Library/Android/sdk`) and `JAVA_HOME` (Android Studio JBR), then fallback to Homebrew if Android Studio is unavailable.
 - If host OS is Linux and Java setup is needed (fresh environment): use Android Studio bundled JBR as the primary method when Android Studio is installed, then fallback to distro/package-manager OpenJDK.
-- If host OS is Windows and Java setup is needed (fresh environment): use Android Studio bundled JBR as the primary method when Android Studio is installed, then fallback to a JDK package install.
+- If host OS is Windows and Java setup is needed (fresh environment): use Android Studio bundled JBR as the primary method when Android Studio is installed, then fallback to Microsoft OpenJDK package install.
 - If host OS is Linux: use package manager + `$HOME/Android/Sdk` conventions.
 - If host OS is Windows: use Android SDK tools with persistent user environment variables.
 - If `java` or `javac` is missing: run step 3 to install/configure Java.
@@ -152,14 +152,19 @@ Prepares a working Android automation environment for Appium by validating Java,
    ```
    Windows primary method for fresh setup (Android Studio bundled JBR, persist for current user):
    ```powershell
-   $studioJbr = "$env:LOCALAPPDATA\Programs\Android Studio\jbr"
-   if (Test-Path $studioJbr) {
+   $studioJbrCandidates = @(
+     "$env:LOCALAPPDATA\Programs\Android Studio\jbr",
+     "C:\Program Files\Android\Android Studio\jbr"
+   )
+   $studioJbr = $studioJbrCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+   if ($studioJbr) {
      [Environment]::SetEnvironmentVariable('JAVA_HOME', $studioJbr, 'User')
      $currentPath = [Environment]::GetEnvironmentVariable('Path', 'User')
      if ($currentPath -notlike "*$studioJbr\bin*") {
        [Environment]::SetEnvironmentVariable('Path', "$currentPath;$studioJbr\bin", 'User')
      }
      $env:JAVA_HOME = [Environment]::GetEnvironmentVariable('JAVA_HOME', 'User')
+     $env:PATH = "$studioJbr\bin;$env:PATH"
      java -version
      javac -version
    } else {
@@ -168,8 +173,8 @@ Prepares a working Android automation environment for Appium by validating Java,
    ```
    Windows fallback method (only when Android Studio is not installed):
    ```powershell
-   winget install -e --id EclipseAdoptium.Temurin.21.JDK
-   $jdkRoot = Get-ChildItem "C:\Program Files\Eclipse Adoptium" -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+   winget install -e --id Microsoft.OpenJDK.17 --accept-source-agreements --accept-package-agreements
+   $jdkRoot = Get-ChildItem "C:\Program Files\Microsoft" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'jdk-*' } | Sort-Object Name -Descending | Select-Object -First 1
    if ($jdkRoot) {
      [Environment]::SetEnvironmentVariable('JAVA_HOME', $jdkRoot.FullName, 'User')
      $currentPath = [Environment]::GetEnvironmentVariable('Path', 'User')
@@ -177,6 +182,7 @@ Prepares a working Android automation environment for Appium by validating Java,
        [Environment]::SetEnvironmentVariable('Path', "$currentPath;$($jdkRoot.FullName)\\bin", 'User')
      }
      $env:JAVA_HOME = [Environment]::GetEnvironmentVariable('JAVA_HOME', 'User')
+     $env:PATH = "$env:JAVA_HOME\\bin;$env:PATH"
    }
    java -version
    javac -version
@@ -218,9 +224,15 @@ Prepares a working Android automation environment for Appium by validating Java,
    ```
    Windows PowerShell:
    ```powershell
-   if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { cmd /c "echo y| sdkmanager.bat --licenses" }
+   if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { cmd /c "(for /l %i in (1,1,200) do @echo y)| sdkmanager.bat --licenses" }
    if (Get-Command sdkmanager.bat -ErrorAction SilentlyContinue) { sdkmanager.bat "platform-tools" "build-tools;34.0.0" "platforms;android-34" "emulator" }
    ```
+    If license acceptance still fails in headless CI-like runs, pre-seed license hashes and retry package install:
+    ```powershell
+    $licensesDir = "$env:ANDROID_HOME\licenses"
+    New-Item -ItemType Directory -Force $licensesDir | Out-Null
+    Set-Content -Path "$licensesDir\android-sdk-license" -Value "24333f8a63b6825ea9c5514f83c2829b004d1fee`n8933bad161af4178b1185d1a37fbf41ea5269c55`nd56f5187479451eabf01fb78af6dfcb131a6481e"
+    ```
 
 6. **Verify Android SDK and ADB state**
    macOS/Linux:

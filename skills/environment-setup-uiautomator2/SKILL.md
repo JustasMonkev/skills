@@ -2,7 +2,7 @@
 name: "environment-setup-uiautomator2"
 description: "Set up and validate a UiAutomator2 Appium environment on Android"
 metadata:
-  last_modified: "Mon, 09 Mar 2026 13:35:00 GMT"
+  last_modified: "Thu, 12 Mar 2026 03:55:00 GMT"
 
 ---
 # appium-uiautomator2-environment-setup
@@ -36,7 +36,14 @@ Prepares a reliable Appium UiAutomator2 execution environment by installing Node
    node -v
    npm -v
    ```
-   If `node` is missing, install a compatible active LTS release and re-run the commands.
+   If `node` is missing, run `environment-setup-node` first (including Windows PowerShell profile bootstrap), then open a new terminal or run `. $PROFILE`, and re-run the commands.
+   Windows PowerShell session bootstrap (recommended before any `appium` command in fresh/background terminals):
+   ```powershell
+   $fnmDir = "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Schniz.fnm_Microsoft.Winget.Source_8wekyb3d8bbwe"
+   if (Test-Path $fnmDir) { $env:PATH = "$fnmDir;$env:PATH" }
+   fnm env --shell powershell | Invoke-Expression
+   fnm use lts-latest
+   ```
 
 2. **Install Appium npm command**
    ```bash
@@ -113,27 +120,52 @@ Prepares a reliable Appium UiAutomator2 execution environment by installing Node
    ```bash
    appium server
    ```
+   Windows PowerShell recommended form (for deterministic log checks):
+   ```powershell
+   appium server --log "$env:TEMP\appium-uia2-smoke.log" --log-level info
+   ```
    Keep this server process running in Terminal A.
    In Terminal B, run:
    ```bash
    curl -s http://127.0.0.1:4723/status
    ```
-   First confirm `/status` responds successfully from `curl`.
+   First confirm `/status` responds successfully.
+   Windows PowerShell reliable variant (recommended on Windows due to `curl` alias behavior):
+   ```powershell
+   $ok = $false
+   for ($i = 0; $i -lt 20; $i++) {
+      try {
+         $resp = Invoke-RestMethod -Uri "http://127.0.0.1:4723/status" -Method Get -TimeoutSec 5
+         if ($resp.value.ready -eq $true) {
+            $ok = $true
+            $resp | ConvertTo-Json -Depth 5
+            break
+         }
+      } catch {
+         Start-Sleep -Milliseconds 500
+      }
+   }
+   if (-not $ok) { throw "Appium /status did not become ready in time" }
+   ```
    Then confirm startup/readiness from server logs and ensure the `Available drivers:` block contains `uiautomator2` (for example: `- uiautomator2@7.0.0 (automationName 'UiAutomator2')`).
+   Windows PowerShell log verification example:
+   ```powershell
+   Get-Content "$env:TEMP\appium-uia2-smoke.log" | Select-String "listener started|Available drivers:|uiautomator2@"
+   ```
    After smoke validation, clean up the running Appium server:
    - In Terminal A, stop the server with `Ctrl+C`.
-    - Verify no leftover Appium server process (Terminal B, macOS/Linux):
+   - Verify no leftover Appium server process (Terminal B, macOS/Linux):
    ```bash
    pgrep -fl "appium.*server" || echo "no appium server process"
    ```
-    - Verify no leftover Appium server process (Terminal B, Windows PowerShell):
-    ```powershell
-    if (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'appium.*server' }) {
-       Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'appium.*server' } | Select-Object ProcessId, Name, CommandLine
-    } else {
-       "no appium server process"
-    }
-    ```
+   - Verify no leftover Appium server process (Terminal B, Windows PowerShell):
+   ```powershell
+   if (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'appium.*server' }) {
+      Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'appium.*server' } | Select-Object ProcessId, Name, CommandLine
+   } else {
+      "no appium server process"
+   }
+   ```
 
 9. **Agent completion criteria**
    Mark the skill complete only when all are true:
@@ -143,8 +175,8 @@ Prepares a reliable Appium UiAutomator2 execution environment by installing Node
    - `environment-setup-android` completion criteria are satisfied
    - task result includes connected-device output (`adb devices -l`) and emulator inventory (`emulator -version`, `emulator -list-avds`)
    - task result explicitly states whether emulator preparation was skipped (and why)
-   - `curl -s http://127.0.0.1:4723/status` returns a successful status response
-   - Appium server logs show startup/readiness successfully after the curl check
+   - `/status` check returns a successful status response (`curl` on macOS/Linux, `Invoke-RestMethod` retry loop recommended on Windows)
+   - Appium server logs show startup/readiness successfully after the status check
    - Appium server logs include `Available drivers:` with a `uiautomator2` entry
    - Appium smoke-test server process is cleanly stopped after validation
 
