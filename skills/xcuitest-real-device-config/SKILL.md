@@ -156,10 +156,10 @@ faster WDA deployment patterns (preinstalled, prebuilt, or attach-to-running).
 
    ```bash
    BUNDLE_ID="<user-provided.bundle.id>"
-   DEVELOPMENT_TEAM="<USER_TEAM_ID>"   # 10-character team ID from the user's Apple account
+   DEVELOPMENT_TEAM="<USER_TEAM_ID>"   # 10-character team ID from the user's Apple account.
    SIGN_ID="Apple Development"         # or the full identity string from security find-identity
 
-   # Optional: inspect the selected certificate subject and OU (team)
+   # Must: inspect the selected certificate subject and OU (used for DEVELOPMENT_TEAM)
    # security find-certificate -c "Apple Development: you@example.com" -p | openssl x509 -noout -subject
 
    # iOS/iPadOS
@@ -168,11 +168,8 @@ faster WDA deployment patterns (preinstalled, prebuilt, or attach-to-running).
      -derivedDataPath appium_wda_ios \
      -scheme WebDriverAgentRunner \
      -destination generic/platform=iOS \
-     -allowProvisioningUpdates \
-     -allowProvisioningDeviceRegistration \
      PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
      DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-     CODE_SIGN_STYLE=Automatic \
      CODE_SIGN_IDENTITY="$SIGN_ID"
 
    # tvOS
@@ -181,11 +178,8 @@ faster WDA deployment patterns (preinstalled, prebuilt, or attach-to-running).
      -derivedDataPath appium_wda_tvos \
      -scheme WebDriverAgentRunner_tvOS \
      -destination generic/platform=tvOS \
-     -allowProvisioningUpdates \
-     -allowProvisioningDeviceRegistration \
      PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
      DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-     CODE_SIGN_STYLE=Automatic \
      CODE_SIGN_IDENTITY="$SIGN_ID"
    ```
 
