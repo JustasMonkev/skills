@@ -156,11 +156,12 @@ faster WDA deployment patterns (preinstalled, prebuilt, or attach-to-running).
 
    ```bash
    BUNDLE_ID="<user-provided.bundle.id>"
-   DEVELOPMENT_TEAM="<USER_TEAM_ID>"   # 10-character team ID from the user's Apple account.
+   DEVELOPMENT_TEAM="<USER_TEAM_ID>"   # 10-character team ID from the user's Apple account. USER_TEAM_ID_PAID_ACCOUNT is for paid account, USER_TEAM_ID_FREE_ACCOUNT is for free account
    SIGN_ID="Apple Development"         # or the full identity string from security find-identity
 
-   # Must: inspect the selected certificate subject and OU (used for DEVELOPMENT_TEAM)
+   # Must: inspect the selected certificate subject and OU
    # security find-certificate -c "Apple Development: you@example.com" -p | openssl x509 -noout -subject
+   # subject=UID=UID, CN=Apple Development: you@example.com (USER_TEAM_ID_PAID_ACCOUNT), OU=USER_TEAM_ID_FREE_ACCOUNT, O=your, C=US
 
    # iOS/iPadOS
    xcodebuild clean build-for-testing \
