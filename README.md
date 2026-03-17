@@ -1,8 +1,6 @@
 # Appium Agent Skills
 
-This repository contains AI Agent skills for preparing Appium driver environments.
-
-NOTE: This repository is currently in development.
+This repository contains AI Agent skills for helping with Appium automation.
 
 ## Available Skills
 
@@ -15,6 +13,7 @@ NOTE: This repository is currently in development.
 | [environment-setup-uiautomator2](skills/environment-setup-uiautomator2/SKILL.md) | Prepares and validates an Android + UiAutomator2 Appium environment |
 | [environment-setup-espresso](skills/environment-setup-espresso/SKILL.md) | Prepares and validates an Android + Espresso Appium environment |
 | [environment-setup-xcuitest](skills/environment-setup-xcuitest/SKILL.md) | Prepares and validates a macOS + XCUITest Appium environment |
+| [xcuitest-real-device-config](skills/xcuitest-real-device-config/SKILL.md) | Prepare a real iOS/tvOS device for Appium XCUITest automation |
 
 ## Reliable Execution Notes
 
