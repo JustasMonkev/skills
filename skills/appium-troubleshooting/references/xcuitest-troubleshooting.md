@@ -2,6 +2,7 @@
 
 ## Sources
 - `https://appium.github.io/appium-xcuitest-driver/latest/guides/troubleshooting/`
+- `https://github.com/appium/appium-xcuitest-driver`
 
 ## When To Read This
 - WebDriverAgent does not build, install, or stay reachable
@@ -13,8 +14,8 @@
 ## Common Patterns
 - WebDriverAgent setup is broken.
   Re-check Xcode selection, signing requirements for real devices, and driver doctor output before touching the test code.
-- The device is reachable, but the XCTest channel is unstable.
-  Real-device issues often need trust, unlock, Developer Mode, or a device restart before Appium changes will matter.
+- The Appium <-> WebDriverAgent HTTP transport is unstable.
+  This usually appears as proxy timeouts, connection resets, or commands that fail right after session start. Verify WDA logs and real-device trust/unlock/Developer Mode state before changing test code.
 - System alerts are blocking the app under test.
   Use `appium:autoAcceptAlerts` or `appium:autoDismissAlerts` only when that matches the test intent; otherwise handle the alert explicitly.
 - The simulator is in a bad state.
@@ -29,6 +30,7 @@ xcode-select -p
 appium driver doctor xcuitest
 xcrun simctl list devices
 xcrun simctl list runtimes
+grep -i "WebDriverAgent\|Proxying\|timed out" <appium-server-log-file>
 ```
 
 ## Practical Fix Order
