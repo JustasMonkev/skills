@@ -23,25 +23,17 @@ Help the agent narrow a single-driver Appium failure into a small set of common 
 
 ## Instructions
 1. **Capture the failing command and lock the driver scope**
-   Record the exact error text, platform, automation driver, and relevant capabilities before changing anything. If the driver is still unclear after checking the logs or capabilities, stop and ask.
+   Record the exact error text, platform, automation driver, and relevant capabilities before changing anything. If the driver is still unclear, ask for one of these before continuing:
+   - the desired capabilities block containing `platformName` and `appium:automationName`
+   - the Appium server log lines from `POST /session` through the first real error after `createSession`
+   If the client hides capabilities, rerun one failing session with Appium server logs enabled and capture that window before troubleshooting further.
 
-2. **Run the minimum baseline checks for that driver**
-   Always collect:
-   ```bash
-   appium -v
-   appium driver list --installed
-   ```
-   UiAutomator2-only:
-   ```bash
-   adb devices -l
-   appium driver doctor uiautomator2
-   ```
-   XCUITest-only:
-   ```bash
-   xcodebuild -version
-   appium driver doctor xcuitest
-   ```
-   If the selected-driver doctor or prerequisite check fails, switch to the matching setup skill before deeper troubleshooting.
+2. **Run baseline checks only when the error message alone is not enough**
+   If the error text already points to a known issue, open the matching driver-specific official reference first and confirm the closest symptom before changing anything. Then collect what is needed:
+   - `appium -v` and `appium driver list --installed` — to confirm driver presence and version.
+   - UiAutomator2: `adb devices -l` and `appium driver doctor uiautomator2` — only if the error suggests a device connectivity or prerequisite problem.
+   - XCUITest: `xcodebuild -version` and `appium driver doctor xcuitest` — only if the error suggests a build, signing, or toolchain problem.
+   If any doctor or prerequisite check fails, switch to the matching setup skill before deeper troubleshooting. Use `references/community-search.md` only after the relevant official reference does not explain the exact stack trace or symptom.
 
 3. **Open only the references that match the selected driver and symptom**
    Do not load both driver branches in one run. Start with the most direct reference for the observed symptom and only expand if that file does not explain the behavior.

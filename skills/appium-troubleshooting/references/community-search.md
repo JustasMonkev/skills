@@ -25,16 +25,17 @@ Example queries:
 - `"No matches found for Identity Binding" xcuitest`
 
 ## Offline Triage Before Searching
-Use one of these cases first. The goal is to do one focused local check before opening forum threads.
 
-| Case | Query Template | First Local Check |
+Use one of these recurring cases to choose a search query and one local verification step. Keep the detailed remediation in the official references whenever possible.
+
+| Case | Search Query Seed | Verify First |
 |---|---|---|
-| UiAutomator2 session drops early | `"socket hang up" uiautomator2 <android-version> <device-type>` | `adb logcat -d` and one clean session retry |
-| UiAutomator2 wrong startup screen | `"Activity never started" appWaitActivity uiautomator2` | verify current activity via `adb shell dumpsys activity activities` |
-| UiAutomator2 no such element on visible node | `"NoSuchElementException" uiautomator2 <locator-type>` | inspect page source and confirm attribute exposure |
-| XCUITest WDA build/signing errors | `"WebDriverAgent" "xcodebuild" failed xcuitest` | run `appium driver doctor xcuitest` and verify signing config |
-| XCUITest WDA not reachable | `"Could not proxy command to remote server" xcuitest` | capture fresh Appium logs and confirm WDA endpoint reachability |
-| XCUITest lookup tree incomplete | `"elements not visible in source" xcuitest inspector` | rerun source snapshot and verify accessibility exposure |
+| UiAutomator2 wrong startup screen or `Activity never started` | `"Activity never started" appWaitActivity uiautomator2` | confirm the focused activity via `adb shell dumpsys activity activities` |
+| UiAutomator2 early session drop or `socket hang up` | `"socket hang up" uiautomator2 <android-version> <device-type>` | capture `adb logcat -d` and retry one clean session |
+| UiAutomator2 WebView or Chromedriver mismatch | `"chromedriver" uiautomator2 webview` | confirm the WebView/browser version on the device before changing Chromedriver settings |
+| XCUITest WDA build or signing failure | `"WebDriverAgent" "xcodebuild" failed xcuitest` | run `appium driver doctor xcuitest` and verify the signing setup |
+| XCUITest WDA timeout or proxy failure | `"Could not proxy command to remote server" xcuitest` | capture fresh Appium logs and confirm WDA reachability |
+| XCUITest source tree incomplete or element missing | `"elements not visible in source" xcuitest inspector` | collect a fresh source snapshot and verify accessibility exposure or active context |
 
 ## How To Filter Results
 - Prefer threads that mention the same Appium major version and the same driver.

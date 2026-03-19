@@ -32,6 +32,21 @@ xcrun simctl list runtimes
 grep -i "WebDriverAgent\|Proxying\|timed out" <appium-server-log-file>
 ```
 
+## Real Device WDA Reachability
+- If WDA builds but commands time out right after session start on a real device, verify that the Appium log is actually proxying to a reachable WDA URL, typically `http://localhost:8100` when port forwarding is active.
+- If you manage WDA yourself, confirm the `appium:webDriverAgentUrl` value points to the actual reachable WDA endpoint, and supply `appium:wdaRemotePort` when the remote device port differs from the local forwarded port.
+- Prefer this real-device check before simulator-only recovery steps.
+
+## Real Device WDA Reachability Sequence
+1. Capture the Appium server log lines around the first timed out command and confirm which WDA URL Appium is proxying to.
+2. If the environment forwards the device port locally, run:
+   ```bash
+   curl -sf http://localhost:8100/status
+   ```
+   A healthy response means the forwarded WDA endpoint is reachable from the host.
+3. If you set `appium:webDriverAgentUrl`, compare it directly with the reachable endpoint. If the device-side port is not the default `8100`, set `appium:wdaRemotePort` to the device-side port that WDA actually listens on.
+4. Only after the reachability check passes should you move on to deeper app or locator troubleshooting.
+
 ## Notes
 - Do not treat every iOS launch failure as a locator issue; many are WDA or device-state problems.
-- If the issue only happens on one device or one simulator runtime, include that environment detail in the root-cause summary.
+- If the issue only happens on one real device or one simulator runtime, include that environment detail in the root-cause summary.
