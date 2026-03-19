@@ -2,7 +2,7 @@
 name: "appium-troubleshooting"
 description: "Diagnose common Appium failures with a driver-scoped flow for UiAutomator2 or XCUITest, covering startup, driver readiness, WebDriverAgent, and element lookup issues"
 metadata:
-  last_modified: "Tue, 17 Mar 2026 11:40:00 GMT"
+  last_modified: "Thu, 19 Mar 2026 12:00:00 GMT"
 
 ---
 # appium-troubleshooting
@@ -22,41 +22,32 @@ Help the agent narrow a single-driver Appium failure into a small set of common 
 - If the official docs do not explain the exact stack trace or symptom, use [references/community-search.md](references/community-search.md) as a fallback workflow.
 
 ## Instructions
-1. **Capture the exact failing surface and driver scope first**
-   Record the failing command, exact error text, platform, automation driver, and capabilities in play.
-   Minimum commands:
+1. **Capture the failing command and lock the driver scope**
+   Record the exact error text, platform, automation driver, and relevant capabilities before changing anything. If the driver is still unclear after checking the logs or capabilities, stop and ask.
+
+2. **Run the minimum baseline checks for that driver**
+   Always collect:
    ```bash
    appium -v
    appium driver list --installed
    ```
-   UiAutomator2-only checks:
+   UiAutomator2-only:
    ```bash
    adb devices -l
    appium driver doctor uiautomator2
    ```
-   XCUITest-only checks:
+   XCUITest-only:
    ```bash
    xcodebuild -version
    appium driver doctor xcuitest
    ```
+   If the selected-driver doctor or prerequisite check fails, switch to the matching setup skill before deeper troubleshooting.
 
-2. **Classify the failure in the selected driver path before changing anything**
-   Choose one primary bucket for that driver:
-   - prerequisite or doctor failure
-   - session startup or app launch failure
-   - device or simulator connectivity/state issue
-   - element lookup or locator issue
-   - unknown, but reproducible from logs
+3. **Open only the references that match the selected driver and symptom**
+   Do not load both driver branches in one run. Start with the most direct reference for the observed symptom and only expand if that file does not explain the behavior.
 
-3. **Open only driver-specific references**
-   Do not load both driver branches in one run. Start with the matching bucket in the selected driver path and expand only if the first file does not explain the behavior.
-
-4. **Apply one targeted fix at a time**
-   Prefer capability corrections, driver cleanup, device reset, or locator changes before broader environment churn.
-   After each fix, re-run the smallest failing check first:
-   - doctor command for prerequisite issues
-   - the single failing session launch for startup issues
-   - the single failing locator or inspector lookup for element issues
+4. **Apply one targeted change, then re-run the smallest failing check**
+   Prefer narrow fixes such as capability corrections, driver cleanup, device reset, or locator updates before broader environment churn. Re-run the doctor command for prerequisite issues, the failing session launch for startup issues, or the failing locator lookup for element issues.
 
 5. **Use official docs first, community second**
    Official references for this skill:
@@ -66,19 +57,8 @@ Help the agent narrow a single-driver Appium failure into a small set of common 
    - `https://github.com/appium/appium-xcuitest-driver`
    Use `discuss.appium.io` only after the official references are exhausted, searching with exact error text plus driver name and platform version.
 
-6. **Record checks/tests performed in the troubleshooting result**
-   Include command evidence for:
-   - `appium -v`
-   - `appium driver list --installed`
-   - selected-driver doctor output (`appium driver doctor uiautomator2` or `appium driver doctor xcuitest`)
-   - one minimal failing reproduction re-run after the fix
-   - platform check tied to selected driver (`adb devices -l` for UiAutomator2, `xcodebuild -version` for XCUITest)
-
-7. **Keep the result evidence-based**
-   End with:
-   - the confirmed or most likely root cause
-   - the change that was made
-   - the command or reproduction that now passes, or the exact blocker that still needs user action
+6. **Report the outcome with command evidence**
+   Include the baseline checks you ran, the change you made, and the smallest reproduction or check you re-ran to confirm the result.
 
 ## Completion Criteria
 Mark troubleshooting complete only when one of these is true:

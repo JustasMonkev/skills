@@ -3,8 +3,14 @@
 ## Source
 - `https://discuss.appium.io/`
 
-## When To Use This
-Use community search only after the official references in this skill do not explain the exact symptom.
+## Official-First Rule
+Use community search only after checking the matching official Appium reference first:
+
+- UiAutomator2 startup: `https://github.com/appium/appium-uiautomator2-driver/blob/master/docs/activity-startup.md`
+- UiAutomator2 locators: `https://github.com/appium/appium-uiautomator2-driver?tab=readme-ov-file#element-location`
+- XCUITest element lookup: `https://appium.github.io/appium-xcuitest-driver/latest/guides/elements-lookup-troubleshooting/`
+- XCUITest locators: `https://appium.github.io/appium-xcuitest-driver/latest/reference/locator-strategies/`
+- XCUITest general failures: `https://appium.github.io/appium-xcuitest-driver/latest/guides/troubleshooting/`
 
 ## Search Pattern
 - Search the exact error string in quotes.
@@ -18,21 +24,17 @@ Example queries:
 - `"WebDriverAgent" xcuitest iOS 18 real device`
 - `"No matches found for Identity Binding" xcuitest`
 
-## Common Case Playbooks
-Use one of these query templates first, then run the paired local check before applying any forum suggestion.
+## Offline Triage Before Searching
+Use one of these cases first. The goal is to do one focused local check before opening forum threads.
 
 | Case | Query Template | First Local Check |
 |---|---|---|
 | UiAutomator2 session drops early | `"socket hang up" uiautomator2 <android-version> <device-type>` | `adb logcat -d` and one clean session retry |
 | UiAutomator2 wrong startup screen | `"Activity never started" appWaitActivity uiautomator2` | verify current activity via `adb shell dumpsys activity activities` |
-| UiAutomator2 server package mismatch | `"io.appium.uiautomator2.server" "instrumentation" failed` | reinstall helper packages and retry one launch |
 | UiAutomator2 no such element on visible node | `"NoSuchElementException" uiautomator2 <locator-type>` | inspect page source and confirm attribute exposure |
-| UiAutomator2 install/start permission issues | `"SecurityException" uiautomator2 adb` | confirm package install state and app permissions on device |
 | XCUITest WDA build/signing errors | `"WebDriverAgent" "xcodebuild" failed xcuitest` | run `appium driver doctor xcuitest` and verify signing config |
 | XCUITest WDA not reachable | `"Could not proxy command to remote server" xcuitest` | capture fresh Appium logs and confirm WDA endpoint reachability |
-| XCUITest app install/launch failure | `"Failed to launch app" xcuitest` | confirm app binary compatibility with target runtime/device |
 | XCUITest lookup tree incomplete | `"elements not visible in source" xcuitest inspector` | rerun source snapshot and verify accessibility exposure |
-| XCUITest real-device trust/dev mode issues | `"Developer Mode" xcuitest real device` | verify device unlock, trust, and Developer Mode state |
 
 ## How To Filter Results
 - Prefer threads that mention the same Appium major version and the same driver.

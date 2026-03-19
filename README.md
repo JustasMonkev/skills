@@ -13,7 +13,7 @@ This repository contains AI Agent skills for helping with Appium automation, inc
 | [environment-setup-uiautomator2](skills/environment-setup-uiautomator2/SKILL.md) | Prepares and validates an Android + UiAutomator2 Appium environment |
 | [environment-setup-espresso](skills/environment-setup-espresso/SKILL.md) | Prepares and validates an Android + Espresso Appium environment |
 | [environment-setup-xcuitest](skills/environment-setup-xcuitest/SKILL.md) | Prepares and validates a macOS + XCUITest Appium environment |
-| [appium-troubleshooting](skills/appium-troubleshooting/SKILL.md) | Troubleshoots UiAutomator2 or XCUITest failures with driver-scoped flows and required validation checks (`appium -v`, installed drivers, doctor output, and minimal repro re-run evidence) |
+| [appium-troubleshooting](skills/appium-troubleshooting/SKILL.md) | Troubleshoots UiAutomator2 or XCUITest failures with a driver-scoped workflow that starts from the failing symptom and re-checks the smallest reproduction after each fix |
 | [xcuitest-real-device-config](skills/xcuitest-real-device-config/SKILL.md) | Prepare a real iOS/tvOS device for Appium XCUITest automation |
 
 ## Reliable Execution Notes
@@ -24,8 +24,7 @@ This repository contains AI Agent skills for helping with Appium automation, inc
 - Treat Appium doctor as the source of truth for pass/fail (`0 required fixes needed`).
 - For FFmpeg-dependent capabilities, run the optional shared skill `environment-setup-ffmpeg` only when explicitly requested.
 - For bundletool-dependent capabilities, run the optional shared skill `environment-setup-bundletool` only when explicitly requested.
-- For startup, WDA, or locator failures after setup is complete, use `appium-troubleshooting` and load only the relevant platform reference files.
-- For `appium-troubleshooting`, capture and report command evidence for `appium -v`, `appium driver list --installed`, selected-driver doctor output, and one minimal failing check re-run after each fix.
+- For startup, WDA, or locator failures after setup is complete, use `appium-troubleshooting` in a single driver path and follow the checks documented in that skill.
 
 ## Agent Instructions
 

@@ -1,27 +1,16 @@
 # UiAutomator2 Locators
 
-## Sources
+## Official Reference
 - `https://github.com/appium/appium-uiautomator2-driver?tab=readme-ov-file#element-location`
 
-## Recommended Locator Order
-1. `accessibility id`
-2. `id`
-3. `-android uiautomator`
-4. `class name` only when scoped to a smaller parent
-5. `xpath` as the last resort
+Use the driver docs for the full strategy list and performance tradeoffs. Keep this page for the extra triage that is easy to miss during debugging.
 
-## Guidance
-- `accessibility id` is usually the most portable and most stable choice when the app exposes meaningful accessibility labels or content descriptions.
-- `id` maps well to Android resource ids and is usually the best native fallback when accessibility metadata is missing.
-- `-android uiautomator` is useful for precise native queries when ids are unavailable, but it should stay readable and narrow.
-- `class name` is weak on its own because many nodes share the same class.
-- `xpath` is the most brittle and usually the slowest option; avoid wide tree scans and absolute paths when possible.
-
-## Troubleshooting A Bad Locator
-- Inspect the current page source or Appium Inspector output before changing code.
-- Verify whether the visible text is actually exposed as text, content description, or resource id.
-- If a hybrid app is involved, confirm the current context before debugging native locators.
-- If lookups are flaky, wait for the UI state that makes the target node exist instead of retrying the same weak selector.
+## Local Guidance
+- Inspect the current page source before changing the selector. Verify whether the target is exposed as `content-desc`, resource id, text, or only as a visual label.
+- If the app is hybrid, confirm the current context before debugging native locators.
+- `-android uiautomator` is useful when ids or accessibility metadata are missing, but keep the query narrow and readable enough to debug from logs.
+- Treat a working `xpath` as proof that the node exists, not as the preferred final fix. Replace it with a stronger native locator when the source exposes one.
+- If the node is not present in source at all, this is usually an app-state, accessibility, or context problem rather than locator syntax.
 
 ## Validation
 - Re-run the smallest failing lookup.

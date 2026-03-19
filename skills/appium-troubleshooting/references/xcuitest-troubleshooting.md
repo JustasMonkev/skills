@@ -1,6 +1,6 @@
 # XCUITest Troubleshooting
 
-## Sources
+## Official References
 - `https://appium.github.io/appium-xcuitest-driver/latest/guides/troubleshooting/`
 - `https://github.com/appium/appium-xcuitest-driver`
 
@@ -11,17 +11,16 @@
 - system alerts block automation
 - simulator or real-device state looks corrupted
 
-## Common Patterns
-- WebDriverAgent setup is broken.
-  Re-check Xcode selection, signing requirements for real devices, and driver doctor output before touching the test code.
-- The Appium <-> WebDriverAgent HTTP transport is unstable.
-  This usually appears as proxy timeouts, connection resets, or commands that fail right after session start. Verify WDA logs and real-device trust/unlock/Developer Mode state before changing test code.
-- System alerts are blocking the app under test.
-  Use `appium:autoAcceptAlerts` or `appium:autoDismissAlerts` only when that matches the test intent; otherwise handle the alert explicitly.
-- The simulator is in a bad state.
-  Shut down or reset the simulator only when the app data is disposable and the failure clearly points to simulator corruption.
-- App installation behavior is the real failure.
-  Confirm the app build is valid for the target device/runtime before treating it as a generic Appium problem.
+This page is a compact entry point into the official XCUITest troubleshooting guide.
+
+## Local Triage Map
+| Symptom | Verify First | Avoid Until Confirmed |
+|---|---|---|
+| WDA build or signing failure | `xcode-select`, `xcodebuild -version`, `appium driver doctor xcuitest`, and real-device signing setup | changing unrelated test capabilities |
+| Proxy timeout or connection reset right after session start | fresh Appium logs, WDA reachability, and real-device unlock/trust/Developer Mode state | blaming locators or app logic |
+| App install or launch fails | app binary compatibility with the target runtime or device | treating it as a generic WDA failure |
+| System alert blocks the test | whether the alert should be explicitly handled or automatically accepted/dismissed | enabling auto-alert handling without matching test intent |
+| One simulator behaves differently from others | one clean shutdown and retry | erase/reset before confirming corruption |
 
 ## Useful Checks
 ```bash
@@ -32,13 +31,6 @@ xcrun simctl list devices
 xcrun simctl list runtimes
 grep -i "WebDriverAgent\|Proxying\|timed out" <appium-server-log-file>
 ```
-
-## Practical Fix Order
-1. Reproduce the failure with fresh Appium server logs.
-2. Confirm Xcode and `xcuitest` doctor status.
-3. For real devices, verify signing, trust, unlock state, and Developer Mode before deeper debugging.
-4. For simulators, shut down the target simulator and retry once before considering an erase/reset.
-5. If WebDriverAgent is the failing component, focus on WDA logs and build state before modifying app capabilities unrelated to WDA.
 
 ## Notes
 - Do not treat every iOS launch failure as a locator issue; many are WDA or device-state problems.

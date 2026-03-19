@@ -52,7 +52,7 @@ This file defines how AI agents should execute the skills in this repository.
 ### Troubleshooting
 
 1. If prerequisites or doctor checks are failing, run the relevant environment setup skill first.
-2. Then run `appium-troubleshooting` and load only the platform reference files that match the symptom.
+2. Then run `appium-troubleshooting` in the failing driver path and load only the platform reference files that match the symptom.
 
 ## Completion Policy
 
@@ -170,6 +170,7 @@ Follow this order:
 
 Rules:
 - Run one step at a time.
+- Keep troubleshooting scoped to the failing driver unless the user explicitly asks for cross-driver comparison.
 - Re-run the smallest failing check after each fix.
 - Treat Appium doctor required fixes as blocking.
 - Prefer the official Appium references bundled with the troubleshooting skill before using discuss.appium.io.
